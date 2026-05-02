@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Cargos from './pages/Cargos';
+import Dashboard from './pages/Dashboard';
 
 // Un pequeño componente para proteger las rutas
 const PrivateRoute = ({ children }) => {
@@ -18,7 +19,7 @@ export default function App() {
 
         {/* Rutas protegidas que usan el Layout */}
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-          <Route index element={<div>Dashboard (Próximamente)</div>} />
+          <Route index element={<Dashboard />} />
           <Route path="cargos" element={<Cargos />} />
           <Route path="candidatos" element={<div>Directorio de Talento</div>} />
           <Route path="entrevistadores" element={<div>Equipo de Entrevistadores</div>} />
