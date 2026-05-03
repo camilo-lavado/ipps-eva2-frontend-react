@@ -15,6 +15,10 @@ const menuItems = [
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const handleLogout = () => {
+    sessionStorage.removeItem('user');
+    navigate('/login');
+  };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f5f7fa' }}>
@@ -72,9 +76,12 @@ export default function Layout() {
           })}
         </List>
 
-        <Box sx={{ mt: 'auto', p: 3 }}>
+       <Box sx={{ mt: 'auto', p: 3 }}>
           <ListItem disablePadding>
-            <ListItemButton sx={{ borderRadius: 2, color: '#ef4444', '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' } }}>
+            <ListItemButton 
+              onClick={handleLogout} 
+              sx={{ borderRadius: 2, color: '#ef4444', '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' } }}
+            >
               <ListItemIcon sx={{ color: '#ef4444', minWidth: 40 }}>
                 <Logout />
               </ListItemIcon>

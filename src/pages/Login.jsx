@@ -1,17 +1,43 @@
 import { useState } from 'react';
-import { Box, Paper, TextField, Button, Typography, Container, Alert, CircularProgress } from '@mui/material';
+import { 
+  Box, Paper, TextField, Button, Typography, Container, 
+  Alert, CircularProgress, InputAdornment, IconButton 
+} from '@mui/material';
+import { Visibility, VisibilityOff, Lock, Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorApi, setErrorApi] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errores, setErrores] = useState({});
+
   const navigate = useNavigate();
+
+  const validarFormulario = () => {
+    let nuevosErrores = {};
+    if (!nombreUsuario.trim()) {
+      nuevosErrores.nombreUsuario = 'El nombre de usuario es obligatorio';
+    }
+    if (!password) {
+      nuevosErrores.password = 'La contraseña es obligatoria';
+    } else if (password.length < 4) {
+      nuevosErrores.password = 'La contraseña debe tener al menos 4 caracteres';
+    }
+    
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrorApi('');
+
+    if (!validarFormulario()) return;
+
     setLoading(true);
 
     try {
@@ -24,14 +50,21 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Guardamos la sesión igual que antes, pero ahora en formato objeto
         sessionStorage.setItem('user', JSON.stringify(data.usuario));
-        navigate('/'); // Redirigimos al Dashboard
+        
+        Swal.fire({
+          icon: 'success',
+          title: `¡Bienvenido!`,
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        navigate('/');
       } else {
-        setError(data.error || 'Credenciales incorrectas');
+        setErrorApi(data.error || 'Credenciales inválidas');
       }
     } catch (err) {
-      setError('No se pudo conectar con el servidor');
+      setErrorApi('Error de conexión con el servidor');
     } finally {
       setLoading(false);
     }
@@ -39,55 +72,107 @@ export default function Login() {
 
   return (
     <Box sx={{ 
-      backgroundColor: '#f0f2f5', 
+      backgroundColor: '#f5f7fa', 
       minHeight: '100vh', 
       display: 'flex', 
-      alignItems: 'center' 
+      alignItems: 'center',
+      backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 0)',
+      backgroundSize: '40px 40px'
     }}>
       <Container maxWidth="xs">
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Typography variant="h4" fontWeight="bold" color="primary">
+        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, textAlign: 'center' }}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
               RecruitApi
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Sistema de Reclutamiento
+              Consola de Administración de Reclutamiento
             </Typography>
           </Box>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {errorApi && (
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+              {errorApi}
+            </Alert>
+          )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <TextField
               fullWidth
-              label="Usuario"
+              label="Nombre de Usuario"
+              name="username"
+              autoComplete="username"
               variant="outlined"
               margin="normal"
               value={nombreUsuario}
-              onChange={(e) => setNombreUsuario(e.target.value)}
-              required
+              onChange={(e) => {
+                setNombreUsuario(e.target.value);
+                if (errores.nombreUsuario) setErrores({ ...errores, nombreUsuario: null });
+              }}
+              error={!!errores.nombreUsuario}
+              helperText={errores.nombreUsuario}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Person color={errores.nombreUsuario ? 'error' : 'action'} />
+                  </InputAdornment>
+                ),
+              }}
             />
+
             <TextField
               fullWidth
               label="Contraseña"
-              type="password"
+              name="password"
+              autoComplete="current-password"
+              type={showPassword ? 'text' : 'password'}
               variant="outlined"
               margin="normal"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errores.password) setErrores({ ...errores, password: null });
+              }}
+              error={!!errores.password}
+              helperText={errores.password}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock color={errores.password ? 'error' : 'action'} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
+
             <Button
               fullWidth
               type="submit"
               variant="contained"
               size="large"
               disabled={loading}
-              sx={{ mt: 3, py: 1.5, fontWeight: 'bold' }}
+              sx={{ 
+                mt: 4, 
+                py: 1.8, 
+                borderRadius: 2, 
+                fontWeight: 'bold',
+                textTransform: 'none',
+                fontSize: '1rem'
+              }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Ingresar'}
+              {loading ? <CircularProgress size={26} color="inherit" /> : 'Acceder al Sistema'}
             </Button>
           </form>
+
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 4 }}>
+            RecruitAPI v2.0 &copy; 2026 - IP San Sebastián
+          </Typography>
         </Paper>
       </Container>
     </Box>

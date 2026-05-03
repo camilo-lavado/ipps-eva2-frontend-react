@@ -1,6 +1,6 @@
-# RecruitElite Frontend - Consola de Administración
+# RecruitApi Frontend - Consola de Administración
 
-Este proyecto es la interfaz gráfica (Frontend) del sistema de reclutamiento **RecruitAPI / RecruitElite**. Ha sido migrado de una arquitectura tradicional (HTML estático + jQuery) a una moderna **Single Page Application (SPA)** construida íntegramente con React y Material UI (MUI).
+Este proyecto es la interfaz gráfica (Frontend) del sistema de reclutamiento **RecruitAPI**. Ha sido migrado de una arquitectura tradicional (HTML estático + jQuery) a una moderna **Single Page Application (SPA)** construida íntegramente con React y Material UI (MUI).
 
 El sistema se conecta de forma asíncrona a un backend RESTful en Node.js, ofreciendo una experiencia fluida, rápida y segura para la gestión de procesos de selección de personal.
 

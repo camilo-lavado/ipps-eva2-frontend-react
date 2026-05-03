@@ -3,6 +3,9 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Cargos from './pages/Cargos';
 import Dashboard from './pages/Dashboard';
+import Candidatos from './pages/Candidatos';
+import Entrevistadores from './pages/Entrevistadores';
+import Agenda from './pages/Agenda';
 
 // Un pequeño componente para proteger las rutas
 const PrivateRoute = ({ children }) => {
@@ -21,9 +24,9 @@ export default function App() {
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="cargos" element={<Cargos />} />
-          <Route path="candidatos" element={<div>Directorio de Talento</div>} />
-          <Route path="entrevistadores" element={<div>Equipo de Entrevistadores</div>} />
-          <Route path="agenda" element={<div>Agenda de Hoy</div>} />
+          <Route path="candidatos" element={<Candidatos />} />
+          <Route path="entrevistadores" element={<Entrevistadores />} />
+          <Route path="agenda" element={<Agenda />} />
         </Route>
       </Routes>
     </BrowserRouter>
