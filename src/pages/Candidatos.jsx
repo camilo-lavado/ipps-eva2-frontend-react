@@ -14,12 +14,10 @@ export default function Candidatos() {
   const [editId, setEditId] = useState(null);
   const [apiError, setApiError] = useState('');
   
-  // Estado para los datos del formulario
   const [formData, setFormData] = useState({
     nombres: '', apellidos: '', email: '', telefono: ''
   });
 
-  // Estado para los errores en tiempo real
   const [errores, setErrores] = useState({});
 
   useEffect(() => {
@@ -31,7 +29,6 @@ export default function Candidatos() {
     setCandidatos(Array.isArray(data) ? data : []);
   };
 
-//Validaciones
   const validarFormulario = () => {
     let nuevosErrores = {};
     let esValido = true;
@@ -68,10 +65,10 @@ export default function Candidatos() {
     }
   };
 
-  const handleOpen = (cand = null) => {
-    if (cand) {
-      setEditId(cand.id);
-      setFormData({ nombres: cand.nombres, apellidos: cand.apellidos, email: cand.email, telefono: cand.telefono });
+  const handleOpen = (candidato = null) => {
+    if (candidato) {
+      setEditId(candidato.id);
+      setFormData({ nombres: candidato.nombres, apellidos: candidato.apellidos, email: candidato.email, telefono: candidato.telefono });
     } else {
       setEditId(null);
       setFormData({ nombres: '', apellidos: '', email: '', telefono: '' });
@@ -176,20 +173,20 @@ export default function Candidatos() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {candidatos.map((cand) => (
-              <TableRow key={cand.id} hover>
+            {candidatos.map((candidato) => (
+              <TableRow key={candidato.id} hover>
                 <TableCell>
                   <Avatar sx={{ bgcolor: '#1976d2', width: 32, height: 32 }}>
                     <Person fontSize="small" />
                   </Avatar>
                 </TableCell>
-                <TableCell fontWeight="bold">{cand.nombres}</TableCell>
-                <TableCell>{cand.apellidos}</TableCell>
-                <TableCell>{cand.email}</TableCell>
-                <TableCell>{cand.telefono}</TableCell>
+                <TableCell fontWeight="bold">{candidato.nombres}</TableCell>
+                <TableCell>{candidato.apellidos}</TableCell>
+                <TableCell>{candidato.email}</TableCell>
+                <TableCell>{candidato.telefono}</TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={() => handleOpen(cand)} color="primary" size="small"><Edit /></IconButton>
-                  <IconButton onClick={() => handleDelete(cand.id)} color="error" size="small"><Delete /></IconButton>
+                  <IconButton onClick={() => handleOpen(candidato)} color="primary" size="small"><Edit /></IconButton>
+                  <IconButton onClick={() => handleDelete(candidato.id)} color="error" size="small"><Delete /></IconButton>
                 </TableCell>
               </TableRow>
             ))}

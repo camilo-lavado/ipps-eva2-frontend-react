@@ -11,6 +11,7 @@ import { cargoService } from '../services/cargoService';
 import { candidatoService } from '../services/candidatoService';
 import { entrevistadorService } from '../services/entrevistadorService';
 import Swal from 'sweetalert2';
+import { API_BASE_URL, ESTADOS_ENTREVISTA } from '../config/api';
 
 export default function Agenda() {
   const [entrevistas, setEntrevistas] = useState([]);
@@ -21,7 +22,7 @@ export default function Agenda() {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({ 
     cargo_id: '', candidato_id: '', entrevistador_id: '', 
-    fecha_hora: '', estado: 'PROGRAMADA', observaciones: '' 
+    fecha_hora: '', estado: ESTADOS_ENTREVISTA.PROGRAMADA, observaciones: '' 
   });
   const [errores, setErrores] = useState({});
 
@@ -48,29 +49,29 @@ export default function Agenda() {
   };
 
   const validar = () => {
-    let e = {};
-    if (!formData.cargo_id) e.cargo_id = 'Seleccione un cargo';
-    if (!formData.candidato_id) e.candidato_id = 'Seleccione un candidato';
-    if (!formData.entrevistador_id) e.entrevistador_id = 'Asigne un entrevistador';
-    if (!formData.fecha_hora) e.fecha_hora = 'La fecha y hora son obligatorias';
-    setErrores(e);
-    return Object.keys(e).length === 0;
+    let errores = {};
+    if (!formData.cargo_id) errores.cargo_id = 'Seleccione un cargo';
+    if (!formData.candidato_id) errores.candidato_id = 'Seleccione un candidato';
+    if (!formData.entrevistador_id) errores.entrevistador_id = 'Asigne un entrevistador';
+    if (!formData.fecha_hora) errores.fecha_hora = 'La fecha y hora son obligatorias';
+    setErrores(errores);
+    return Object.keys(errores).length === 0;
   };
 
-  const handleOpen = (ent = null) => {
-    if (ent) {
-      setEditId(ent.id);
-      const fechaFormat = ent.fecha_hora ? ent.fecha_hora.substring(0, 16) : '';
+  const handleOpen = (entrevista = null) => {
+    if (entrevista) {
+      setEditId(entrevista.id);
+      const fechaFormat = entrevista.fecha_hora ? entrevista.fecha_hora.substring(0, 16) : '';
       setFormData({ 
-        cargo_id: ent.cargo_id, candidato_id: ent.candidato_id, 
-        entrevistador_id: ent.entrevistador_id, fecha_hora: fechaFormat, 
-        estado: ent.estado || 'PROGRAMADA', observaciones: ent.observaciones || '' 
+        cargo_id: entrevista.cargo_id, candidato_id: entrevista.candidato_id, 
+        entrevistador_id: entrevista.entrevistador_id, fecha_hora: fechaFormat, 
+        estado: entrevista.estado || ESTADOS_ENTREVISTA.PROGRAMADA, observaciones: entrevista.observaciones || '' 
       });
     } else {
       setEditId(null);
       setFormData({ 
         cargo_id: '', candidato_id: '', entrevistador_id: '', 
-        fecha_hora: '', estado: 'PROGRAMADA', observaciones: '' 
+        fecha_hora: '', estado: ESTADOS_ENTREVISTA.PROGRAMADA, observaciones: '' 
       });
     }
     setErrores({});
@@ -117,7 +118,7 @@ export default function Agenda() {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`http://localhost:3000/api/entrevistas/${id}`, { method: 'DELETE' });
+        const response = await fetch(`${API_BASE_URL}/entrevistas/${id}`, { method: 'DELETE' });
         if (!response.ok) {
           throw new Error('El servidor rechazó la eliminación');
         }
@@ -150,7 +151,12 @@ export default function Agenda() {
   };
 
   const getColor = (estado) => {
-    const colors = { 'PROGRAMADA': 'primary', 'REALIZADA': 'default', 'CANCELADA': 'error', 'PENDIENTE': 'warning' };
+    const colors = { 
+      [ESTADOS_ENTREVISTA.PROGRAMADA]: 'primary', 
+      [ESTADOS_ENTREVISTA.REALIZADA]: 'default', 
+      [ESTADOS_ENTREVISTA.CANCELADA]: 'error', 
+      [ESTADOS_ENTREVISTA.PENDIENTE]: 'warning' 
+    };
     return colors[estado] || 'default';
   };
 
@@ -176,20 +182,20 @@ export default function Agenda() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {entrevistas.map((ent) => (
-              <TableRow key={ent.id} hover>
+            {entrevistas.map((entrevista) => (
+              <TableRow key={entrevista.id} hover>
                 <TableCell fontWeight="bold">
-                  {ent.fecha_hora ? ent.fecha_hora.substring(0, 16).replace('T', ' ') : '—'}
+                  {entrevista.fecha_hora ? entrevista.fecha_hora.substring(0, 16).replace('T', ' ') : '—'}
                 </TableCell>
-                <TableCell>{getCargoNombre(ent.cargo_id)}</TableCell>
-                <TableCell>{getCandidatoNombre(ent.candidato_id)}</TableCell>
-                <TableCell>{getEntrevistadorNombre(ent.entrevistador_id)}</TableCell>
+                <TableCell>{getCargoNombre(entrevista.cargo_id)}</TableCell>
+                <TableCell>{getCandidatoNombre(entrevista.candidato_id)}</TableCell>
+                <TableCell>{getEntrevistadorNombre(entrevista.entrevistador_id)}</TableCell>
                 <TableCell>
-                  <Chip label={ent.estado} size="small" color={getColor(ent.estado)} variant="soft" />
+                  <Chip label={entrevista.estado} size="small" color={getColor(entrevista.estado)} variant="soft" />
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={() => handleOpen(ent)} color="primary"><Edit /></IconButton>
-                  <IconButton onClick={() => handleDelete(ent.id)} color="error"><Delete /></IconButton>
+                  <IconButton onClick={() => handleOpen(entrevista)} color="primary"><Edit /></IconButton>
+                  <IconButton onClick={() => handleDelete(entrevista.id)} color="error"><Delete /></IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -245,10 +251,10 @@ export default function Agenda() {
               <TextField select label="Estado" fullWidth value={formData.estado}
                 onChange={(e) => setFormData({...formData, estado: e.target.value})}
               >
-                <MenuItem value="PROGRAMADA">Programada</MenuItem>
-                <MenuItem value="PENDIENTE">Pendiente</MenuItem>
-                <MenuItem value="REALIZADA">Realizada</MenuItem>
-                <MenuItem value="CANCELADA">Cancelada</MenuItem>
+                <MenuItem value={ESTADOS_ENTREVISTA.PROGRAMADA}>Programada</MenuItem>
+                <MenuItem value={ESTADOS_ENTREVISTA.PENDIENTE}>Pendiente</MenuItem>
+                <MenuItem value={ESTADOS_ENTREVISTA.REALIZADA}>Realizada</MenuItem>
+                <MenuItem value={ESTADOS_ENTREVISTA.CANCELADA}>Cancelada</MenuItem>
               </TextField>
             </Box>
 

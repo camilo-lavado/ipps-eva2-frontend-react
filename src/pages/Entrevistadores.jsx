@@ -4,7 +4,7 @@ import {
   TableContainer, TableHead, TableRow, IconButton, Dialog, 
   DialogTitle, DialogContent, DialogActions, TextField, Chip 
 } from '@mui/material';
-import { Add, Edit, Delete, ContactMail } from '@mui/icons-material';
+import { Add, Edit, Delete } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import { entrevistadorService } from '../services/entrevistadorService';
 
@@ -25,18 +25,18 @@ export default function Entrevistadores() {
   };
 
   const validar = () => {
-    let e = {};
-    if (!formData.nombres.trim()) e.nombres = 'Requerido';
-    if (!formData.email.includes('@')) e.email = 'Email inválido';
-    if (!formData.especialidad.trim()) e.especialidad = 'Defina una especialidad';
-    setErrores(e);
-    return Object.keys(e).length === 0;
+    let errores = {};
+    if (!formData.nombres.trim()) errores.nombres = 'Requerido';
+    if (!formData.email.includes('@')) errores.email = 'Email inválido';
+    if (!formData.especialidad.trim()) errores.especialidad = 'Defina una especialidad';
+    setErrores(errores);
+    return Object.keys(errores).length === 0;
   };
 
-  const handleOpen = (ent = null) => {
-    if (ent) {
-      setEditId(ent.id);
-      setFormData({ nombres: ent.nombres, apellidos: ent.apellidos, email: ent.email, especialidad: ent.especialidad });
+  const handleOpen = (entrevistador = null) => {
+    if (entrevistador) {
+      setEditId(entrevistador.id);
+      setFormData({ nombres: entrevistador.nombres, apellidos: entrevistador.apellidos, email: entrevistador.email, especialidad: entrevistador.especialidad });
     } else {
       setEditId(null);
       setFormData({ nombres: '', apellidos: '', email: '', especialidad: '' });
@@ -87,10 +87,8 @@ export default function Entrevistadores() {
 
     if (result.isConfirmed) {
       try {
-        // Usamos nuestro servicio en lugar del fetch manual
         const response = await entrevistadorService.delete(id);
         
-        // Validamos si la base de datos lo rechazó (Error 500)
         if (!response.ok) {
           throw new Error('El servidor rechazó la eliminación');
         }
@@ -134,17 +132,17 @@ export default function Entrevistadores() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {entrevistadores.map((e) => (
-              <TableRow key={e.id} hover>
-                <TableCell>{e.id}</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>{`${e.nombres} ${e.apellidos}`}</TableCell>
-                <TableCell>{e.email}</TableCell>
+            {entrevistadores.map((entrevistador) => (
+              <TableRow key={entrevistador.id} hover>
+                <TableCell>{entrevistador.id}</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>{`${entrevistador.nombres} ${entrevistador.apellidos}`}</TableCell>
+                <TableCell>{entrevistador.email}</TableCell>
                 <TableCell>
-                  <Chip label={e.especialidad} size="small" color="info" variant="soft" />
+                  <Chip label={entrevistador.especialidad} size="small" color="info" variant="soft" />
                 </TableCell>
                <TableCell align="right">
-                  <IconButton onClick={() => handleOpen(e)} color="primary"><Edit /></IconButton>
-                  <IconButton onClick={() => handleDelete(e.id)} color="error"><Delete /></IconButton>
+                  <IconButton onClick={() => handleOpen(entrevistador)} color="primary"><Edit /></IconButton>
+                  <IconButton onClick={() => handleDelete(entrevistador.id)} color="error"><Delete /></IconButton>
                 </TableCell>
               </TableRow>
             ))}

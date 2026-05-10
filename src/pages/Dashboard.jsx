@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
 import { People, Work, Badge, CalendarMonth } from '@mui/icons-material';
+import { API_BASE_URL, ESTADOS_ENTREVISTA } from '../config/api';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ candidatos: 0, cargos: 0, entrevistadores: 0, entrevistas: 0 });
@@ -9,34 +10,34 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resCand, resCarg, resEntrevistadores, resEntrevistas] = await Promise.all([
-          fetch('http://localhost:3000/api/candidatos'),
-          fetch('http://localhost:3000/api/cargos'),
-          fetch('http://localhost:3000/api/entrevistadores'),
-          fetch('http://localhost:3000/api/entrevistas')
+        const [resCandidatos, resCargos, resEntrevistadores, resEntrevistas] = await Promise.all([
+          fetch(`${API_BASE_URL}/candidatos`),
+          fetch(`${API_BASE_URL}/cargos`),
+          fetch(`${API_BASE_URL}/entrevistadores`),
+          fetch(`${API_BASE_URL}/entrevistas`)
         ]);
 
-        const cand = await resCand.json();
-        const carg = await resCarg.json();
-        const entrs = await resEntrevistadores.json();
-        const entrv = await resEntrevistas.json();
+        const candidatosData = await resCandidatos.json();
+        const cargosData = await resCargos.json();
+        const entrevistadoresData = await resEntrevistadores.json();
+        const entrevistasData = await resEntrevistas.json();
 
         setStats({
-          candidatos: cand.length || 0,
-          cargos: carg.length || 0,
-          entrevistadores: entrs.length || 0,
-          entrevistas: entrv.length || 0
+          candidatos: candidatosData.length || 0,
+          cargos: cargosData.length || 0,
+          entrevistadores: entrevistadoresData.length || 0,
+          entrevistas: entrevistasData.length || 0
         });
 
-        const cargosMap = carg.reduce((acc, c) => ({ ...acc, [c.id]: c.titulo }), {});
-        const candMap = cand.reduce((acc, c) => ({ ...acc, [c.id]: `${c.nombres} ${c.apellidos}` }), {});
-        const entrsMap = entrs.reduce((acc, c) => ({ ...acc, [c.id]: `${c.nombres} ${c.apellidos}` }), {});
+        const cargosMap = cargosData.reduce((acc, c) => ({ ...acc, [c.id]: c.titulo }), {});
+        const candidatosMap = candidatosData.reduce((acc, c) => ({ ...acc, [c.id]: `${c.nombres} ${c.apellidos}` }), {});
+        const entrevistadoresMap = entrevistadoresData.reduce((acc, c) => ({ ...acc, [c.id]: `${c.nombres} ${c.apellidos}` }), {});
 
-        const entrevistasFormateadas = entrv.slice(0, 5).map(e => ({
+        const entrevistasFormateadas = entrevistasData.slice(0, 5).map(e => ({
           ...e,
           cargoNombre: cargosMap[e.cargo_id] || '—',
-          candidatoNombre: candMap[e.candidato_id] || '—',
-          entrevistadorNombre: entrsMap[e.entrevistador_id] || '—'
+          candidatoNombre: candidatosMap[e.candidato_id] || '—',
+          entrevistadorNombre: entrevistadoresMap[e.entrevistador_id] || '—'
         }));
 
         setUltimasEntrevistas(entrevistasFormateadas);
@@ -63,10 +64,10 @@ export default function Dashboard() {
 
   const getColor = (estado) => {
     const colors = {
-      'PROGRAMADA': 'primary',
-      'REALIZADA': 'default',
-      'CANCELADA': 'error',
-      'PENDIENTE': 'warning'
+      [ESTADOS_ENTREVISTA.PROGRAMADA]: 'primary',
+      [ESTADOS_ENTREVISTA.REALIZADA]: 'default',
+      [ESTADOS_ENTREVISTA.CANCELADA]: 'error',
+      [ESTADOS_ENTREVISTA.PENDIENTE]: 'warning'
     };
     return colors[estado] || 'default';
   };
