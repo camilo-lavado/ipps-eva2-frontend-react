@@ -23,6 +23,6 @@ export const entrevistaService = {
   },
   delete: async (id) => {
     const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    return res.json();
+    return res;
   }
 };
